@@ -19,6 +19,7 @@ import (
 	"github.com/xjasonlyu/tun2socks/v2/dialer"
 	"github.com/xjasonlyu/tun2socks/v2/log"
 	"github.com/xjasonlyu/tun2socks/v2/proxy"
+	"github.com/xjasonlyu/tun2socks/v2/proxy/direct"
 	"github.com/xjasonlyu/tun2socks/v2/restapi"
 	"github.com/xjasonlyu/tun2socks/v2/tunnel"
 )
@@ -209,6 +210,11 @@ func netstack(k *Key) (err error) {
 
 	if _defaultProxy, err = parseProxy(k.Proxy); err != nil {
 		return err
+	}
+	if k.UDPDirect {
+		directProxy, _ := direct.New()
+		_defaultProxy = proxy.NewDual(_defaultProxy, directProxy)
+		log.Infof("[STACK] UDP direct mode enabled")
 	}
 	tunnel.T().SetProxy(_defaultProxy)
 
